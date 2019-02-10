@@ -1,8 +1,9 @@
-//  ME 497.007
-//  Lab 1: Morse Code
-//  Jarret Jack and Azzam Shaikh
-//  January 22, 2019
-
+//  The purpose of this code is to transmit Morse code by turning the Arduino's built in LED light on and off. 
+//  Two Arduino's were programmed for this project. The first Arduino would serve as a transmitter 
+//  and the second Arduino would serve as a receiver. The transmitting Arduino would transmit the Morse code 
+//  sequence to its builtin LED and then route it to the recieving Arduino where it would repeat the sequence.
+//  The recieving Arduino's code is shown below the transmitting Arduinos code.
+//  ---------------------------------------
 //  Code for transmitting Arduino 
 
 //  Declare variables
@@ -101,6 +102,29 @@ void error_counter() {
     Serial.print("ERROR number ");          //  Print the initial phrase to the serial monitor
     Serial.println(counter);                //  Print the counter variable using the println in order to create a new line after the number is printed
   }
+}
+
+//  End of code
+//  ----------------------------
+
+//  Code for recieving Arduino
+
+// Declare variables
+int val = 0;              //  Initialize a variable that will store the returned reading from pin 8
+
+void setup() {
+  // Initialize pins and serial communication
+  
+  pinMode(8, INPUT);      //  Set pin 8 as an input [input from transmitting Arduino]
+  pinMode(7, OUTPUT);     //  Set pin 7 as an output [output from receiving Arduino to circuit]
+  Serial.begin(9600);     //  Initialize serial communication
+}
+
+void loop() {
+  // Convert the input from the transmitting Arduino to this (receiving) Arduino
+  
+  val = digitalRead(8);   //  Use the digitalRead function to import the value from pin 8
+  digitalWrite(7, val);   //  Set the output pin 7 to the same signal being transmitted from input pin 8
 }
 
 // End of code
