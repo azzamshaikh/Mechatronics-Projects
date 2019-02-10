@@ -1,0 +1,61 @@
+%%  The purpose of this project is to create an electronic Etch-a-sketch while using
+%   potentiometers. The following code was created to run in MATLAB. 
+%   ---------------------------------
+
+clear;                  %   Clear all variables from workspace
+clc;                    %   Clear the command window
+
+counter = 0;            %   Initialize an empty counter variable 
+a = arduino();          %   Create an arduino object 
+configurePin(a,'D11','DigitalOutput');  %   Configure digital pin 11 as an output
+configurePin(a,'D2','DigitalInput');    %   Configure digital pin 2 as an input
+
+h = animatedline;           %   Create initial animated line object
+axis([-10 10 -10 10])       %   Set the axis for the Etch-a-sketch from -10 to 10
+x = linspace(0,5,2000);     %   Create a linearly spaced vector of length 2000 
+
+% Create a loop that will read the two potentiometers and make it act as an
+% Etch-a-Sketch
+for k = 1:length(x)         %   Run loop until there are 2000 points taken
+    tic;                    %   Start the timer 
+    counter = counter + 1;  %   Add 1 to the counter everytime the loop runs
+    xController = readVoltage(a, 'A0');     %   Read the voltage from potentiometer one and set it as the X controller
+    yController = readVoltage(a, 'A2');     %   Read the voltage from potentiometer two and set it as the Y controller
+    xController = (xController * 4) - 10;   %   Amplify the X potentiometer readings so it fits on a -10 to 10 Etch-a-Sketch
+    yController = (yController * 4) - 10;   %   Amplify the Y potentiometer readings so it fits on a -10 to 10 Etch-a-Sketch
+               
+    addpoints(h,xController, yController);  %   Add points from amplified value to the animated line 
+    drawnow                                 %   Draw pending drawing events
+    
+    %   The following if statements will be done in order to make the
+    %   built-in LED blink every 0.5 seconds.
+    %   Based on the tic and toc functions, it was seen that each loop took
+    %   approximately _____ seconds(?) to run. Based on that value, the
+    %   loop would need to run ~16 times in order for it to be 0.5 seconds.
+    %   Therefore, using the mod() function, once the counter has been ran
+    %   16 times, the light would turn on and would be off in between those
+    %   loop intervals. 
+    value = mod(counter,16);                %   Create a variable to hold the remainder of the counter and 16 (# of loops)
+    if(value == 0)                          %   If the modulus is equal to 0 (16/16 = 1 with a reminader of 0), the statement would be entered
+        writeDigitalPin(a, 'D13', 1);       %       Since the if statement is entered, it would turn the  builtin LED on
+    else                                    %   If the modulus is not equal to 0 (ex. 30/16 = 1 with a remainder 14), the statement would be entered
+        writeDigitalPin(a, 'D13', 0);       %       Since the else statement is satisfied, the builtin LED would turn off
+    end                                     %   End if statement 
+        
+    rightVoltage = readVoltage(a, 'A2');    %   Read voltage from analog pin 'A2' and set it as the right voltage
+    writePWMVoltage(a,'D11', rightVoltage); %   Write the pulse width modulus for the rightVoltage and output it to digital pin 11
+    
+    button = readDigitalPin(a, 'D2');       %   Read the signal from digital pin 2
+    
+    %   Create an if statement based on the button signal to control the
+    %   color of the animated line
+    if(0 == button)             %   If the signal of the button is read as LOW (0), enter the if statement
+        h.Color = 'black';      %       Since the if condition is satisfied, set the color of the animated line to black
+    elseif(1 == button)         %   Else if the signal of the button is read as high (1), enter the else if statement
+        h.Color = 'blue';       %       Since the else if condition is satisfied, set the color of the animated line to blue
+    end                         %   End if statement
+    toc;                        %   End timer
+end                             %   End for loop 
+
+%   End code 
+    
