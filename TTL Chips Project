@@ -1,9 +1,12 @@
-// ME 497 -- 007 
-// Lab 02 -- TTL logic chips 
-// Jarrett John and Azzam Shaikh
-// January 29, 2019
+//  This project is for us to practice how to conduct callbacks through TTL chips. We are tasked to 
+//  create a circuit using a TTL chip and code a program using the attachInterrupt function to  
+//  measure the callback response time. After testing that, we were tasked to use another Arduino (logic Arduino) that would
+//  perform the same operation as the TTL chip and output that signal to the master Arduino. The response time
+//  for that operation was measured. Finally, we were to reprogram our logic Arduino to do the same operation as before
+//  but this time using the attachInterrupt function.
+//  --------------------------------
 
-// Master Arduino Task 3
+// Master Arduino 
 
 //  Declare Variables
 const byte ledPin = 13;               //  Variable referencing pin for LED
@@ -69,4 +72,62 @@ void loopBackTTL () {
   t2 = micros();        // Get the loopback time for the TTL output (mirco secs)  
 }
 
+//  End Code
+//  ----------------------------------------------
+//  Logic Arduino without AttachInterrupt function
+
+//  Declare variables
+
+const byte inputOne = 9;                //  Variable for input one
+const byte inputTwo = 10;               //  Variable for input two
+const byte logOpOutput = 11;            //  Variable for logical operation output
+
+void setup() {
+  //  Initialize pin modes
+  pinMode(inputOne, INPUT_PULLUP);      //  Set input one as an input
+  pinMode(inputTwo, INPUT_PULLUP);      //  Set input two as an input
+  pinMode(logOpOutput, OUTPUT);         //  Set logical operation output as an output
+}
+
+void loop() {
+  //  Create a function that will be looped
+  byte inOne = digitalRead(inputOne);   //  Read input one and store as a variable
+  byte inTwo = digitalRead(inputTwo);   //  Read input two and store as a variable
+  byte expect = inOne ^ inTwo;          //  Perform logical operation and store as a variable
+  digitalWrite(logOpOutput,expect);     //  Write output pin with expected value
+}
+
 // End of code
+// ----------------------------------
+// Logic Arduino with AttachInterrupt function
+
+const byte inputOne = 2;          //  Variable referencing pin for input one
+const byte inputTwo = 3;          //  Variable referencing pin for input two
+const byte logOpOutput = 11;      //  Variable referencing pin for logical operation output
+
+void setup() {
+  //  Initalize pin modes and call attach interrupt functions
+  pinMode(inputOne, INPUT_PULLUP);        //  Set input one as an input
+  pinMode(inputTwo, INPUT_PULLUP);        //  Set input two as an input
+  pinMode(logOpOutput, OUTPUT);           //  Set logical operation output as output
+  attachInterrupt(digitalPinToInterrupt(inputOne),loopBack,CHANGE);     //  Call interrupt function when input one has a singal change and call loopBack function
+  attachInterrupt(digitalPinToInterrupt(inputTwo),loopBack,CHANGE);     //  Call interrupt function when input two has a singal change and call loopBack function
+}
+
+void loop() {
+  //  Leave blank as mentioned in task description
+}
+
+void loopBack() {
+  //  This function is executed every time input one or input two has a singal change 
+  byte inOne = digitalRead(inputOne);     //  Read input one and store as a variable
+  byte inTwo = digitalRead(inputTwo);     //  Read input two and store as a variable
+  byte expect = inOne ^ inTwo;            //  Perform logical operation [XOR] and store as variable
+  digitalWrite(logOpOutput, expect);      //  Write logical operation output with expected value
+}
+
+// End of code
+
+
+
+
