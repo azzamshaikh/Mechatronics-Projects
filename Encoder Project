@@ -1,3 +1,6 @@
+//  Purpose of this code is to learn how to interface encoders and to calculate perform metrics of the encoder.
+//---------------------------------------------------------------------------
+
 // Initialize variables 
 const int ch_A = 2;     //  Pin for channel A
 const int ch_B = 3;     //  Pin for channel B
@@ -11,8 +14,6 @@ volatile boolean changeFlagA = false;     // Variable used to check if encoder h
 void setup() {
   //Setup channel A as an interrupt pin with a specified mode: RISING,FALLING,CHANGE
   pinMode(ch_A,INPUT);          //  Initialize pin for channel A as an input
-  //attachInterrupt(digitalPinToInterrupt(ch_A), interrupt_A, RISING);      //  Create an interrupt routine for channel A when the signal is rising (low to high)
-  //attachInterrupt(digitalPinToInterrupt(ch_A), interrupt_A, FALLING);     //  Create an interrupt routine for channel A when the signal is falling (high to low)
   attachInterrupt(digitalPinToInterrupt(ch_A), interrupt_A, CHANGE);        //  Create an interrupt routine for channel A when the signal is changing (high to low and vice versa)
   
   pinMode(ch_B,INPUT);          //  Initialize pin for channel B as an input
