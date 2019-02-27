@@ -1,0 +1,161 @@
+// Purpose of this segment of the code is to make the the servo move from 0 to 180 degrees and back to 0 degrees
+
+#include <Servo.h>  //  Call servo library 
+
+Servo myservo;  //  Create servo object to control a servo
+
+int pos = 0;    //  Variable to store the servo position
+
+void setup() {
+  myservo.attach(9);  //  Attaches the servo on pin 9 to the servo object
+  myservo.write(0);   //  Resets servo positioning to 0 degrees. 
+  delay(1000);        //  Wait for the servos movement to catch up
+  //  Create a loop that will rotate the servo for a full sweep a total of 10 times
+  //  A full sweep is considered to be a 180 degree rotation in one angular direction. 
+  //  Therefore, moving the servo from 0 to 180 to 0 is considered two rotations.
+  for (int counter = 1; counter <= 5; counter += 1){
+    myservo.write(0);   //  Start servo at 0 degrees
+    delay(750);         //  Wait 750 ms so servo can rotate 
+    myservo.write(180); //  Move servo to 180 degrees
+    delay(750);         //  Wait 750 ms so servo can rotate
+    myservo.write(0);   //  Move servo to 0 degrees
+  }
+}
+
+void loop() {
+}
+
+//  End of code
+
+//----------------------------------------------------------------------------
+// Purpose of this segment of the code is to make the the servo move from 0 to 90 degrees and back to 0 degrees 
+
+#include <Servo.h>  //  Call servo library
+
+Servo myservo;  // Create servo object to control a servo
+
+int pos = 0;    // Variable to store the servo position
+
+void setup() {
+  myservo.attach(9);  //  Attaches the servo on pin 9 to the servo object
+  myservo.write(0);   //  Resets servo positioning to 0 degrees
+  delay(1000);        //  Wait for the servos movement to catch up
+  //  Create a loop that will rotate the servo for a half sweep a total of 10 times
+  //  A half sweep is considered to be 90 degree rotation in one angular direction.
+  //  Therefore, moving the servo from 0 to 90 to 0 is considered two rotation
+  for (int counter = 1; counter <= 5; counter += 1){
+    myservo.write(0);   //  Start servo at 0 degrees
+    delay(390);         //  Wait 390 ms so servo can rotate 
+    myservo.write(90);  //  Move servo to 90 degrees
+    delay(390);         //  Wait 390 ms so servo can rotate
+    myservo.write(0);   //  Move servo to 0 degrees
+  }
+}
+
+
+void loop() {
+  
+}
+
+
+//  End of code
+
+//------------------------------------------------------------------
+// Purpose of this segment of the code is to make the the servo move from 0 to 90 degrees and back to 0 degrees 
+// all while attempting to make an LED's brightness as the servo moves(purpose was to see that we aren't able to make that happen)
+
+#include <Servo.h>  //  Call servo library
+
+Servo myservo;  //  Create servo object to control a servo
+
+int pos = 0;        //  Variable to store the servo position
+int counter = 0;    //  Initialize a counter storage variable
+int led = 5;       //  Store led pin location
+int brightness = 0; //  Storage variable for led brightness
+int fadeAmount = 5; //  Incremental fade amount for led brightness
+
+void setup() {
+  myservo.attach(9);    //  Attaches the servo on pin 9 to the servo object
+  myservo.write(0);     //  Reset servo positioning to 0 degrees
+  delay(1000);          //  Wait for the servo movement to catch up
+  pinMode(led,OUTPUT);  //  Initialize led pin as an output
+}
+
+void loop() {
+  analogWrite(led, HIGH);   //  Turn led on
+  brightness = brightness + fadeAmount;   //  Add incremental fade amount to brightness after every loop
+  //  When the brightness reaches its minimum (0) or maximum (255) brightness thresholds, change
+  //  the sign of fade amount so the brightness increases or decreases, respectively.
+  if(brightness <= 0 || brightness >= 255){ 
+    fadeAmount = -fadeAmount;   //  Flips sign of fade increment
+  }
+  //  Create an if statement that will only run 5 times
+  //  Once the if statement is entered, the servo will perform a half sweep a total of 10 times
+  //  A half sweep is considered to be a 90 degree rotation in one angular direction
+  //  Therefore, moving the servo from 0 to 90 to 0 is considered two rotations.
+  if(5 > counter){      //  Once the counter has gone over 5, the if statement will not be entered
+    myservo.write(0);   //  Start servo at 0 degrees      
+    delay(390);         //  Wait 390 ms so servo can rotate
+    myservo.write(90);  //  Move servo to 90 degrees
+    delay(390);         //  Wait 390 ms so servo can rotate
+    myservo.write(0);   //  Move servo to 0 degrees
+    counter += 1;       //  Add one to the counter
+  } 
+}
+
+//  End of code
+
+
+// ------------------------------------------------------------------------
+// Purpose of this segment of the code is to learn to control the servo without using the servo library and make 
+// an LED vary brightness as the servo moves.
+
+// Pin Assignments
+int servo = 8;  // Assigns Pin 8 as the signal wire for the servo.
+//  Servo is HiTec Deluxe HS-322HD
+int led = 10;   // Assigns Pin 10 as the signal wire for the LED.
+
+int width180 = 3;    // Time width for the 180 degree pulse. 
+int width0 = 0;      // Time width for the 0 degree pulse.
+int iterations = 35;  // Number of pulses sent through signal wire to servo.
+
+int LEDbrightness = 0;  // Starting brightness of LED.
+int LEDfadeAmount = 50; // Increment at which the LED brightness varies.
+
+void setup() {
+  pinMode(servo,OUTPUT);  // Assigns the servo signal pin as an output.
+  pinMode(led,OUTPUT);    // Assigns the LED signal pin as an output.
+}
+
+void loop() {
+  pulse0();                 // Sends PPM to go to 0 degrees.
+  pulse180();               // Sends PPM to go to 180 degrees.
+  
+  analogWrite(led, LEDbrightness);    // Sets the LED to the current value of the brightness.
+  LEDbrightness += LEDfadeAmount;     // Updates the LED brightness.
+  if (0 >= LEDbrightness || 255 <= LEDbrightness) {
+    LEDfadeAmount = -LEDfadeAmount;   // Negates the increment to reverse the brightness variation.
+  }
+}
+
+
+void pulse180() {                   // This function pulses a HIGH digital signal for "width180" milliseconds and a LOW digital signal for the remaining 20 milliseconds. Occurs "iterations" times. 
+  for(int count = 0; count <= iterations; count += 1){ // Iterates the loop "iterations" times.
+    digitalWrite(servo,HIGH);         // Sets the servo pin as HIGH.
+    delay(width180);                 // Delays for the pulse time.
+    digitalWrite(servo,LOW);          // Sets the servo pin as LOW.
+    delay(20-width180);               // Delays for the remaining pulse time.
+  }
+}
+
+
+void pulse0() {                     // This function pulses a HIGH digital signal for "width0" milliseconds and a LOW digital signal for the remaining 20 milliseconds. Occurs "iterations" times. 
+  for(int count = 0; count <= iterations; count += 1) { // Iterates the loop "iterations" times.
+    digitalWrite(servo,HIGH);         // Sets the servo pin as HIGH.
+    delay(width0);                    // Delays for the pulse time.
+    digitalWrite(servo,LOW);          // Sets the servo pin as LOW.
+    delay(20-width0);                 // Delays for the remaining pulse time.
+  }
+}
+
+//  End of code
