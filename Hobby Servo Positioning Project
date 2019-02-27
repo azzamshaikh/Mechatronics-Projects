@@ -1,3 +1,8 @@
+// The purpose of this project is to learn how to implement position control of servos using polling and library based timers
+// as well as characterizing the perforamce of the servo. 
+// ----------------------------------------------------------------
+
+
 // Purpose of this segment of the code is to make the the servo move from 0 to 180 degrees and back to 0 degrees
 
 #include <Servo.h>  //  Call servo library 
