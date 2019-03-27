@@ -1,3 +1,12 @@
+/******************
+* Purpose of this project is to practice how filtering works. We were expected to create two 
+* filters: an analog filter and a digital filter. The data we inputted came from an IR sensor
+* that we had to implement. The analog filter was a passive, low pass filter that was created 
+* out of a resistor and a capacitor. The digital filter was implemented in the code via 
+* the linear difference equation. The coefficienets were found via a Buttersworth filtre from MATLAB.
+*******************/
+
+
 //  Declare Variables
 int sensorPin = A0;     //  Declare variable for sensor pin 
 int sensorInitial;      //  Initalize variable for initial sensor reading 
