@@ -1,0 +1,336 @@
+/***********************************************************************
+***** GAME OF THRONES ******
+* Purpose of this code is to have a RedBot "sense" (in the loosest terms)
+* that he is in front of the Iron Throne (the Game of Thrones Chair, as seen
+* in the video) and proceed to sit in the chair. In order for the RedBot to 
+* sit in the throne, he will move back, turn around, and sit in the chair. 
+* The RedBot will then proceed to play the intro song for the Game of Thrones series.
+ ***********************************************************************/
+//  Define all the notes for the Game of Thrones intro song
+//  Information for the song can be found at the GameOfThrones() function. 
+#define NOTE_B0  31
+#define NOTE_C1  33
+#define NOTE_CS1 35
+#define NOTE_D1  37
+#define NOTE_DS1 39
+#define NOTE_E1  41
+#define NOTE_F1  44
+#define NOTE_FS1 46
+#define NOTE_G1  49
+#define NOTE_GS1 52
+#define NOTE_A1  55
+#define NOTE_AS1 58
+#define NOTE_B1  62
+#define NOTE_C2  65
+#define NOTE_CS2 69
+#define NOTE_D2  73
+#define NOTE_DS2 78
+#define NOTE_E2  82
+#define NOTE_F2  87
+#define NOTE_FS2 93
+#define NOTE_G2  98
+#define NOTE_GS2 104
+#define NOTE_A2  110
+#define NOTE_AS2 117
+#define NOTE_B2  123
+#define NOTE_C3  131
+#define NOTE_CS3 139
+#define NOTE_D3  147
+#define NOTE_DS3 156
+#define NOTE_E3  165
+#define NOTE_F3  175
+#define NOTE_FS3 185
+#define NOTE_G3  196
+#define NOTE_GS3 208
+#define NOTE_A3  220
+#define NOTE_AS3 233
+#define NOTE_B3  247
+#define NOTE_C4  262
+#define NOTE_CS4 277
+#define NOTE_D4  294
+#define NOTE_DS4 311
+#define NOTE_E4  330
+#define NOTE_F4  349
+#define NOTE_FS4 370
+#define NOTE_G4  392
+#define NOTE_GS4 415
+#define NOTE_A4  440
+#define NOTE_AS4 466
+#define NOTE_B4  494
+#define NOTE_C5  523
+#define NOTE_CS5 554
+#define NOTE_D5  587
+#define NOTE_DS5 622
+#define NOTE_E5  659
+#define NOTE_F5  698
+#define NOTE_FS5 740
+#define NOTE_G5  784
+#define NOTE_GS5 831
+#define NOTE_A5  880
+#define NOTE_AS5 932
+#define NOTE_B5  988
+#define NOTE_C6  1047
+#define NOTE_CS6 1109
+#define NOTE_D6  1175
+#define NOTE_DS6 1245
+#define NOTE_E6  1319
+#define NOTE_F6  1397
+#define NOTE_FS6 1480
+#define NOTE_G6  1568
+#define NOTE_GS6 1661
+#define NOTE_A6  1760
+#define NOTE_AS6 1865
+#define NOTE_B6  1976
+#define NOTE_C7  2093
+#define NOTE_CS7 2217
+#define NOTE_D7  2349
+#define NOTE_DS7 2489
+#define NOTE_E7  2637
+#define NOTE_F7  2794
+#define NOTE_FS7 2960
+#define NOTE_G7  3136
+#define NOTE_GS7 3322
+#define NOTE_A7  3520
+#define NOTE_AS7 3729
+#define NOTE_B7  3951
+#define NOTE_C8  4186
+#define NOTE_CS8 4435
+#define NOTE_D8  4699
+#define NOTE_DS8 4978
+
+//  Call RedBot library
+#include <RedBot.h>
+
+//  Create RedBotMotor object
+RedBotMotors motors;
+
+//  Create RedBotBumper objects for left and right bumper
+RedBotBumper lBumper = RedBotBumper(3);   //  Initialze left bumper object on pin 3
+RedBotBumper rBumper = RedBotBumper(11);  //  Initialze right bumper object on pin 11
+
+//  Store pin locations for the button and speaker
+int buttonPin = 12;   //  Variable storing button pin
+int speakerPin = 9;   //  Variable storing speaker (buzzer) pin
+
+//  Create variables that will store the bumper value
+int lBumperState;     //  Variable storing the left bumper value
+int rBumperState;     //  Variable storing the right bumper value
+
+void setup()
+{
+  //  This while loop is present to keep the robot from turning on and immediately working.
+  //  Once the button is pressed, the buttonPin would read as LOW, thus exiting the while loop and function for whatever follows.
+  while(digitalRead(buttonPin) == HIGH){
+    //  Does nothing
+  }
+}
+
+void loop()
+{
+  //  Move motor forward. Since the robot curves while it moves, an offset has been applied to help move the robot straight 
+  motors.leftMotor(-135);
+  motors.rightMotor(150);
+  
+  //  Store the initial values for the left and right bumper.
+  lBumperState = lBumper.read();  // default INPUT state is HIGH, it is LOW when bumped
+  rBumperState = rBumper.read();  // default INPUT state is HIGH, it is LOW when bumped
+
+  //  This if statement makes the RedBot sit in the Iron Throne by "sensing" that he has found the chair
+  //  The reason we used just one bumper rather than two is because having both sensors touch slightly rotated the RedBot
+  //  prior to it turning around. Due to this rotation, the RedBot would never properly sit in the chair. Therefore, we used only 
+  //  one sensor to find the chair. 
+  if (rBumperState == LOW){
+    reverse();          //  Takes a step back
+    turnAround();       //  Turns around or pivots
+    goToChair();        //  Sits in chair
+    GameOfThrones();    //  Plays Game of Thrones intro song
+  }
+}
+
+//  reverse() function -- RedBot takes a step back
+void reverse()
+{
+  motors.drive(-255);   //  Reverse at max speed. Offset not created as delay time very small
+  delay(500);           //  Move for 0.5 seconds
+  motors.brake();       //  Stop reversing by "pressing" the brake
+  delay(100);           //  Short delay to let robot fully stop
+}
+
+//  turnAround() function -- Redbot turns around
+void turnAround(){
+  motors.rightMotor(-255);  //  Turn right motor CCW at max speed
+  motors.leftMotor(-255);   //  Turn left motor CCW at max speed
+  delay(575);               //  Delay braking long enough for the RedBot to complete a full 360 degree turn
+  motors.brake();           //  Stop turning by "pressing" the brake
+  delay(500);               //  Short delay to let the robot fully stop
+}
+
+//  goToChair() function -- RedBot sits in chair
+void goToChair(){
+  motors.rightMotor(-255);  //  Turn right motor CCW at max speed
+  motors.leftMotor(235);    //  Turn left motor CW at speed required to let RedBot move in a straight line
+  delay(750);               //  Allow enough time for the RedBot to fully seat itself
+  motors.brake();           //  Stop sitting by "pressing" the brake
+  delay(1000);              //  Short delay to let robot fully stop and contemplate its marvelous achievement
+}
+
+//  GameOfThrones() function -- RedBot plays the Game of Thrones intro sound
+//  This song was not created by me. This was found online via a Google search.
+//  The user 'untimony' from Instructables.com created this song. The file can be found on the following link:
+//  https://www.instructables.com/id/Game-Of-Thrones-Theme-on-Arduino/
+//  Since this code is not mine, I did not comment this section. It can be seen that
+//  this whole function is the creation of a song. All the notes are defined in the beginning of this code.
+void GameOfThrones(){
+  for(int i=0; i<4; i++){
+    tone(speakerPin, NOTE_G4);
+    delay(500);
+    noTone(speakerPin);
+    tone(speakerPin, NOTE_C4);
+    delay(500);
+    noTone(speakerPin);
+    tone(speakerPin, NOTE_DS4);
+    delay(250);
+    noTone(speakerPin);
+    tone(speakerPin, NOTE_F4);
+    delay(250);
+    noTone(speakerPin);
+  }
+  for(int i=0; i<4; i++){
+    tone(speakerPin, NOTE_G4);
+    delay(500);
+    noTone(speakerPin);
+    tone(speakerPin, NOTE_C4);
+    delay(500);
+    noTone(speakerPin);
+    tone(speakerPin, NOTE_E4);
+    delay(250);
+    noTone(speakerPin);
+    tone(speakerPin, NOTE_F4);
+    delay(250);
+    noTone(speakerPin);
+    tone(speakerPin, NOTE_G4);
+    delay(500);
+    noTone(speakerPin);
+    tone(speakerPin, NOTE_C4);
+    delay(500);
+    tone(speakerPin, NOTE_DS4);
+    delay(250);
+    noTone(speakerPin);
+    tone(speakerPin, NOTE_F4);
+    delay(250);
+    noTone(speakerPin);
+    tone(speakerPin, NOTE_D4);
+    delay(500);
+    noTone(speakerPin);
+  }
+  for(int i=0; i<3; i++){
+    tone(speakerPin, NOTE_G3);
+    delay(500);
+    noTone(speakerPin);
+    tone(speakerPin, NOTE_AS3);
+    delay(250);
+    noTone(speakerPin);
+    tone(speakerPin, NOTE_C4);
+    delay(250);
+    noTone(speakerPin);
+    tone(speakerPin, NOTE_D4);
+    delay(500);
+    noTone(speakerPin);
+    tone(speakerPin, NOTE_G3);
+    delay(500);
+    noTone(speakerPin);
+    tone(speakerPin, NOTE_AS3);
+    delay(250);
+    noTone(speakerPin);
+    tone(speakerPin, NOTE_C4);
+    delay(250);
+    noTone(speakerPin);
+    tone(speakerPin, NOTE_D4);
+    delay(1000);
+    noTone(speakerPin);
+    tone(speakerPin, NOTE_F4);
+    delay(1000);
+    noTone(speakerPin);
+    tone(speakerPin, NOTE_AS3);
+    delay(1000);
+    noTone(speakerPin);
+    tone(speakerPin, NOTE_DS4);
+    delay(250);
+    noTone(speakerPin);
+    tone(speakerPin, NOTE_D4);
+    delay(250);
+    noTone(speakerPin);
+    tone(speakerPin, NOTE_F4);
+    delay(1000);
+    noTone(speakerPin);
+    tone(speakerPin, NOTE_AS3);
+    delay(1000);
+    noTone(speakerPin);
+    tone(speakerPin, NOTE_DS4);
+    delay(250);
+    noTone(speakerPin);
+    tone(speakerPin, NOTE_D4);
+    delay(250);
+    noTone(speakerPin);
+    tone(speakerPin, NOTE_C4);
+    delay(500);
+    noTone(speakerPin);
+  }
+  for(int i=0; i<3; i++){
+    tone(speakerPin, NOTE_GS3);
+    delay(250);
+    noTone(speakerPin);
+    tone(speakerPin, NOTE_AS3);
+    delay(250);
+    noTone(speakerPin);
+    tone(speakerPin, NOTE_C4);
+    delay(500);
+    noTone(speakerPin);
+    tone(speakerPin, NOTE_F3);
+    delay(500);
+    noTone(speakerPin);
+    tone(speakerPin, NOTE_G4);
+    delay(1000);
+    noTone(speakerPin);
+    tone(speakerPin, NOTE_C4);
+    delay(1000);
+    noTone(speakerPin);
+    tone(speakerPin, NOTE_DS4);
+    delay(250);
+    noTone(speakerPin);
+    tone(speakerPin, NOTE_F4);
+    delay(250);
+    noTone(speakerPin);
+    tone(speakerPin, NOTE_G4);
+    delay(1000);
+    noTone(speakerPin);
+    tone(speakerPin, NOTE_C4);
+    delay(1000);
+    noTone(speakerPin);
+    tone(speakerPin, NOTE_DS4);
+    delay(250);
+    noTone(speakerPin);
+    tone(speakerPin, NOTE_F4);
+    delay(250);
+    noTone(speakerPin);
+    tone(speakerPin, NOTE_D4);
+    delay(500);
+    noTone(speakerPin);
+  }
+  for(int i=0; i<4; i++){
+    tone(speakerPin, NOTE_G3);
+    delay(500);
+    noTone(speakerPin);
+    tone(speakerPin, NOTE_AS3);
+    delay(250);
+    noTone(speakerPin);
+    tone(speakerPin, NOTE_C4);
+    delay(250);
+    noTone(speakerPin);
+    tone(speakerPin, NOTE_D4);
+    delay(500);
+    noTone(speakerPin);
+  }
+}
+
+//  End of code
