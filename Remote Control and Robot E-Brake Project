@@ -1,0 +1,80 @@
+/***********************************************************************
+The objective of this project was for us to learn how to use the XBee wireless transreceivers
+between two RedBot boards. We learned this through developing a remote control that would transmit
+the movement controls to the RedBot robot. Everyone in class was then tested by having to drive 
+their robot through a test track. 
+***********************************************************************/
+
+
+
+/***********************************************************************
+//  RedBot Controller Code
+***********************************************************************/
+//  Call RedBot library
+#include <RedBot.h>
+
+//  Create RedBotSensor objects for reading potentiometers
+RedBotSensor lMotor = RedBotSensor(4);
+RedBotSensor rMotor = RedBotSensor(1);
+
+void setup() {
+  Serial.begin(9600);       //  Initiate serial communication for transmitting data to recieving XBee
+}
+
+void loop() { 
+  int lMotorRead = lMotor.read();       //  Read signal from left potentiometer on controller
+  int rMotorRead = rMotor.read();       //  Read signal from right potentiometer on controller
+  int lValue = map(lMotorRead, 0, 1023, -255, 255);   //  Map the left potentiometer signal within the boundary for the motor input values
+  int rValue = map(rMotorRead, 0, 1023, 510, 1020);   //  Map the right potentiometer to a certain range so it can be distinguishable for the recieving code
+  Serial.println(lValue);               //  Print out the left signal reading on a new line
+  Serial.println(rValue);               //  Print out the right signal reading on a new line
+}
+
+//  End of code
+
+
+
+/***********************************************************************
+//  RedBot Robot Code
+***********************************************************************/
+
+//  Call RedBot library
+#include <RedBot.h>    
+
+//  Create RedBotMotor object
+RedBotMotors motors;
+
+//  Create RedBotSensor object for IR sensor
+RedBotSensor IR = RedBotSensor(7);
+
+//  Create variables used in the code
+int parseValue;               //  Incoming data storage.
+int rightThreshold = 510;     //  Value used for differentiating between right and left motor inputs
+int leftPower;                //  Drive power for the left motor.
+int rightPower;               //  Drive power for the right motor.
+
+void setup(void)
+{
+  Serial.begin(9600);          //  Initiate serial communication (can be used for debugging)
+}
+
+void loop(void)
+{
+  if(Serial.available() > 0)                                //  If there is data coming in on the Serial monitor, do something with it.
+  {
+    parseValue = Serial.parseInt();                         //  Read in the incoming value from the antenna.
+    if (rightThreshold <= parseValue){                      //  Identify the incoming value as either right or left motor inputs
+      rightPower = map(parseValue,510,1020,-255,255);       //  Readjusts parseValue to motor current input values and stores data in rightPower variable
+    }
+    else {                                
+      leftPower = parseValue;                               //  Stores left motor inputs in leftPower variable
+    }
+    motors.leftMotor(leftPower);                            //  Send leftPower input to leftMotor as output
+    motors.rightMotor(rightPower);                          //  Send rightPower input to rightMotor as output
+  }  
+  if(500 < IR.read()){                                      //  Checks IR reading and if value is less than 500 bits it will enter statement
+    motors.brake();                                         //  Once entered, the brakes will be pressed to stop the RedBot to a hault
+  }
+}
+
+//  End of code
