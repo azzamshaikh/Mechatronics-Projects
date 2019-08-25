@@ -1,0 +1,55 @@
+/****************************************************************************
+The objective of this project was to develop a wall following robot. We would 
+select a certain distance we would want and the robot had to correct itself 
+whenever obstacles came about such as indents in walls, door stoppers, etc
+This would be done by utilizing an IR sensor that we would place on the robot
+and the readings would be feed back to the PID controller we programmed. 
+The PID controller would then feed the motors the right amount of speed to keep 
+the robot within the desired distance from the wall.
+****************************************************************************/
+
+#include <RedBot.h>   // Include RedBot library for us in code
+
+RedBotMotors motors;  // Create RedBotMotors variable
+RedBotSensor IR = RedBotSensor(4); // Create RedBotSensor variable for IR sensor
+
+float setLeft = 175.0;  // Set left motor speed
+float setRight = 175.0; // Set right motor speed
+int desired = 250;      // Set desired distance from wall in IR bitvalue
+int desired_max = 20;   // Set upper threshold for deviation from wall
+int desired_min = -20;  // Set lower threshold for deviation from wall
+float g = 0.1;          // Set gain value
+float mG;               // Create variable to store motor gain (output)
+float leftSpeed;        // Create variable to store left output speed
+float rightSpeed;       // Create variable to store right output speed
+int sideError;          // Create variable to store error value
+
+void setup(void)
+{
+  // Can initialize serial monitor for debugging purposes
+}
+void loop() {
+
+  sideError = desired - IR.read();    // Read IR reading and subtract value from desired value to get the error
+  mG = g*sideError;                   // Calculate motor gain
+  
+  if(sideError < desired_min){        // Move RedBot to the left as it has exceeded the minimum threshold
+    leftSpeed = setLeft + mG;         // Decrease left motor speed
+    rightSpeed = setRight - mG;       // Increase right motor speed
+  }
+    
+  else if(sideError > desired_max){   // Move RedBot to the right as it has exceeded the maximum threshold
+    leftSpeed = setLeft + mG;         // Increase left motor speed
+    rightSpeed = setRight - mG;       // Decrease right motor speed
+  }
+  
+  else if((sideError > desired_max) && (sideError < desired_min)){ // Move RedBot forward if it is within the threshold range
+    leftSpeed = setLeft;              // Keep left motor speed at designated speed
+    rightSpeed = setRight;            // Keep right motor speed at designated speed
+  }
+  
+  motors.leftMotor(leftSpeed);        // Output left motor speed
+  motors.rightMotor(rightSpeed);      // Output right motor speed
+}
+
+// End of code
