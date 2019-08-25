@@ -1,4 +1,11 @@
 /***********************************************************************
+This project is the beginning of the robotics portion of the coursework. The objective of this project 
+is to learn how RedBots move, sense, and are controlled/programmed. We began this section by doing this
+talent show. Every team was to submit some talent that they got their robot to do. My team decided to 
+commemorate the beginning of the 8th season of Game of Thrones.
+***********************************************************************/
+
+/***********************************************************************
 ***** GAME OF THRONES ******
 * Purpose of this code is to have a RedBot "sense" (in the loosest terms)
 * that he is in front of the Iron Throne (the Game of Thrones Chair, as seen
