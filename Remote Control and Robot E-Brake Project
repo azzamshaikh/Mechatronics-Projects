@@ -1,5 +1,5 @@
 /***********************************************************************
-The objective of this project was for us to learn how to use the XBee wireless transreceivers
+The objective of this project was for us to learn how to use the XBee wireless transceivers
 between two RedBot boards. We learned this through developing a remote control that would transmit
 the movement controls to the RedBot robot. Everyone in class was then tested by having to drive 
 their robot through a test track. 
